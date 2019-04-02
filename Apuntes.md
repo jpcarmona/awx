@@ -409,6 +409,19 @@ ssh_key_data: |
   $(cat ~/.ssh/id_rsa | tr '\n' ' ')"
 ```
 
+* Creación credenciales(tipo github,con clave privada):
+```bash
+tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="username: jpcarmona
+ssh_key_data: |
+  $(cat ~/.ssh/id_rsa | tr '\n' ' ')"
+```
+
+* Creación credenciales(tipo github,con constraseña):
+```bash
+tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="username: jpcarmona
+password: <contraseña>"
+```
+
 * Eliminar credencial:
 ```bash
 tower-cli credential delete -n prueba
@@ -431,23 +444,88 @@ tower-cli receive --inventory all
 tower-cli inventory list
 ```
 
-* Creación credenciales(tipo maquina-ssh,con clave privada):
+* Creación inventario:
 ```bash
-tower-cli inventory create --credential-type="Machine" --name="prueba2" --user="admin" --inputs="username: jpcarmona
-ssh_key_data: |
-  $(cat ~/.ssh/id_rsa | tr '\n' ' ')"
+tower-cli inventory create --name="inventory_1" --organization="Default" --description="example inventory"
 ```
 
-* Eliminar credencial:
+* Eliminar inventario:
 ```bash
-tower-cli credential delete -n prueba
+tower-cli inventory delete -n inventory_1
 ```
 
-* Modificar credencial:
+* Añadir Servidor a inventario:
 ```bash
-tower-cli credential modify -n credential_1 --inputs="username: jpcarmona
-ssh_key_data: |
- $(cat ~/.ssh/emergya_ecdsa | tr '\n' ' ')"
+tower-cli host create --name="host_1" --description="example host" --inventory="inventory_1"
+```
+
+* Modificar Servidor de un inventario:
+```bash
+tower-cli host modify --name="host_1" --description="example host" --inventory="inventory_1" --variables="ansible_host: 127.0.0.1"
+```
+
+### Proyectos con tower-cli
+
+* Listado de proyectos:
+```bash
+# Formato largo en JSON
+tower-cli receive --project all
+# Formato claro y corto
+tower-cli project list
+```
+
+* Creación proyectos(local):
+```bash
+# Se necesita plantilla de ansible en /var/lib/awx/projects
+sudo mkdir -p /var/tmp/awx/projects/project_1
+sudo su -c "cat << EOF > /var/tmp/awx/projects/project_1/playbook.yml
+---
+- hosts: host_1
+  tasks:
+    - name: Running the container
+      docker_container:
+        name: awx_dns
+        image: dns_awx:latest
+        state: started
+...
+EOF"
+
+tower-cli project create --name="proyect_1" --organization="Default" --scm-type="manual" --local-path="project_1"
+```
+
+* Creación proyectos(git):
+```bash
+tower-cli project create --name="project_3" --organization="Default" --scm-type="git" --scm-url="https://github.com/Emergya/sistemas-ansible-roles.git" --scm-branch="master" --scm-credential="credential_2"
+```
+
+* Eliminar proyectos:
+```bash
+tower-cli project delete -n prueba
+```
+
+### Plantillas con tower-cli
+
+* Listado de plantillas:
+```bash
+# Formato largo en JSON
+tower-cli receive --job_template all
+# Formato claro y corto
+tower-cli job_template list
+```
+
+* Creación plantilla:
+```bash
+tower-cli job_template create --name="job_template_1" --job-type="run" --inventory="inventory_1" --project="proyect_1" --playbook="playbook.yml" --credential="credential_1"
+```
+
+* Eliminar plantillas:
+```bash
+tower-cli job_template delete -n prueba
+```
+
+* Ejecución plantillas:
+```bash
+tower-cli job_template callback -n job_template_1
 ```
 
 
