@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Add registry dns
+      lineinfile:
+        path: /etc/bind/db.{{ zone }}
+        line: '{{ primary }}	     IN	  {{ type }}	  {{ secondary }}'
+
+    - name: Restart service bind9
+      supervisorctl:
+        name: bind9
+        state: restarted

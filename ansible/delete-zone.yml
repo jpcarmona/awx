@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Remove zone from named.conf.default-zones
+      blockinfile:
+        path: /etc/bind/named.conf.local
+        marker: "// {mark} ANSIBLE MANAGED BLOCK {{ zone }}"
+        content: ""
+
+    - name: Remove file for zone
+      file:
+        path: /etc/bind/db.{{ zone }}
+        state: absent
+
+    - name: Restart service bind9
+      supervisorctl:
+        name: bind9
+        state: restarted

@@ -1,0 +1,35 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Insert new zone in named.conf.default-zones
+      blockinfile:
+        path: /etc/bind/named.conf.local
+        marker: "// {mark} ANSIBLE MANAGED BLOCK {{ zone }}"
+        block: |
+          zone "{{ zone }}" {
+                  type master;
+                  file "/etc/bind/db.{{ zone }}";
+          };
+    - name: Create new file for zone
+      blockinfile:
+        path: /etc/bind/db.{{ zone }}
+        marker: "; {mark} ANSIBLE MANAGED BLOCK {{ zone }}"
+        create: yes
+        block: |
+          $TTL	604800
+          @	IN	SOA	{{ zone }}. root.{{ zone }}. (
+          			      2		; Serial
+          			 604800		; Refresh
+          			  86400		; Retry
+          			2419200		; Expire
+          			 604800 )	; Negative Cache TTL
+          ;
+          @	                IN	  NS	  ns1.{{ zone }}.
+          ns1.{{ zone }}.	IN	  A	      {{ ip }}
+          @	                IN	  A	      {{ ip }}
+
+    - name: Restart service bind9
+      supervisorctl:
+        name: bind9
+        state: restarted

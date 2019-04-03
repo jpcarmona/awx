@@ -1,0 +1,31 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Install pip
+      apt:
+        name: python-pip
+        state: present
+        update_cache: yes
+    - name: Install modules
+      pip:
+        name: docker
+    - name: Login into registry Emergya
+      docker_login:
+        registry: docker-registry.emergya.com:443
+        username: "{{ user }}"
+        password: "{{ pass }}"
+        reauthorize: yes
+    - name: Create container DNS master
+      docker_container:
+        name: dns-master
+        image: docker-registry.emergya.com:443/emergya/emergya-docker-bind9:latest
+        hostname: dns-master
+        restart_policy: always
+        state: started
+        ports:
+          - "53:53/udp"
+          - "53:53"
+          - "2022:22"
+        volumes:
+          - "~/.ssh:/root/.ssh"
