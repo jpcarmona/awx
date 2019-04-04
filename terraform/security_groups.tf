@@ -1,48 +1,66 @@
-resource "aws_security_group" "sgdns" {
-  name = "sgdns"
-  egress {
-    from_port = 0
-    protocol = "-1"
-    to_port = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port = 22
-    protocol = "tcp"
-    to_port = 22
-    cidr_blocks = ["${var.ip-emergya}"]
-  }
-  ingress {
-    from_port = 0
-    protocol = "-1"
-    to_port = 0
-    cidr_blocks = ["172.31.16.10/32"]
-  }
-}
-
 resource "aws_security_group" "sgawx" {
-  name = "sgawx"
+  name   = "sgawx"
+  vpc_id = "${aws_vpc.vpc.id}"
 
-  ingress {
-    from_port   = 22
-    protocol    = "tcp"
-    to_port     = 22
-    cidr_blocks = ["${var.ip-emergya}","172.31.16.11/32"]
-  }
-
-  ingress {
-    from_port   = 443
-    protocol    = "tcp"
-    to_port     = 443
-    cidr_blocks = ["${var.ip-emergya}","172.31.16.11/32"]
-  }
   egress {
     from_port   = 0
     protocol    = "-1"
     to_port     = 0
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  ingress {
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
+    cidr_blocks = ["${var.ip-emergya}", "${var.private-ip-dns}/32"]
+  }
+
+  ingress {
+    from_port   = 80
+    protocol    = "tcp"
+    to_port     = 80
+    cidr_blocks = ["${var.ip-emergya}", "${var.private-ip-dns}/32"]
+  }
+
+  ingress {
+    from_port   = 443
+    protocol    = "tcp"
+    to_port     = 443
+    cidr_blocks = ["${var.ip-emergya}", "${var.private-ip-dns}/32"]
+  }
+
   tags {
-    Name = "sgawx"
+    Name = "sec-grp-dns"
+  }
+}
+
+resource "aws_security_group" "sgdns" {
+  name   = "sgdns"
+  vpc_id = "${aws_vpc.vpc.id}"
+
+  egress {
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
+    cidr_blocks = ["${var.ip-emergya}"]
+  }
+
+  ingress {
+    from_port   = 0
+    protocol    = "-1"
+    to_port     = 0
+    cidr_blocks = ["${var.private-ip-awx}/32"]
+  }
+
+  tags {
+    Name = "sec-grp-awx"
   }
 }
