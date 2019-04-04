@@ -1,7 +1,7 @@
-## Creación fichero log
-sudo exec > >(sudo tee /var/log/user-data.log|sudo logger -t user-data -s 2>/dev/console) 2>&1
-## Activamos "loggeo"
-sudo set -x
+### Creación fichero log
+#sudo exec > >(sudo tee /var/log/user-data.log|sudo logger -t user-data -s 2>/dev/console) 2>&1
+### Activamos "loggeo"
+#sudo set -x
 ## Actualizamos
 sudo apt update
 sudo apt upgrade -y
@@ -50,4 +50,4 @@ project_data_dir=/var/tmp/awx/projects
 EOF
 
 ansible-playbook -i inventory install.yml
-set +x
+#set +x

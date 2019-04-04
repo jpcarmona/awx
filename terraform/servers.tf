@@ -55,7 +55,7 @@ resource "aws_instance" "awx-dns-server" {
   provisioner "remote-exec" {
     inline = [
       "sudo chmod +x /tmp/script-dns.sh",
-      "sudo /tmp/script-dns.sh",
+      "bash /tmp/script-dns.sh",
     ]
   }
   connection {

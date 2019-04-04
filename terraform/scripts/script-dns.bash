@@ -1,7 +1,7 @@
-## Creación fichero log
-sudo exec > >(sudo tee /var/log/user-data.log|sudo logger -t user-data -s 2>/dev/console) 2>&1
-## Activamos "loggeo"
-sudo set -x
+### Creación fichero log
+#sudo exec > >(sudo tee /var/log/user-data.log|sudo logger -t user-data -s 2>/dev/console) 2>&1
+### Activamos "loggeo"
+#sudo set -x
 ## Actualizamos
 sudo apt update
 sudo apt upgrade -y
@@ -19,4 +19,4 @@ sudo apt install docker-ce python3 python -y
 #echo 'nameserver 127.0.0.1' | sudo tee --append /etc/resolv.conf
 #echo 'nameserver 8.8.8.8' | sudo tee --append /etc/resolv.conf
 sudo adduser ubuntu docker
-sudo set +x
+#sudo set +x
