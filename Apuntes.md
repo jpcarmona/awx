@@ -27,7 +27,7 @@ mkdir $PROJECT_DIR
 git clone https://github.com/ansible/awx.git $PROJECT_DIR/repo_awx
 
 # Opcional para los logos
-git clone https://github.com/ansible/awx-logos.git ./repo_awx-logos
+git clone https://github.com/ansible/awx-logos.git $PROJECT_DIR/awx-logos
 
 python3 -m venv $PROJECT_DIR/entorno_awx
 
@@ -67,19 +67,24 @@ admin_user=admin
 admin_password=password
 create_preload_data=False
 secret_key=awxsecret
-    # Para esteblecer nombre de dominio en "search"
-awx_container_search_domains=example.com
-#
     # Para guardar en local la carpeta de proyectos
 project_data_dir=/var/tmp/awx/projects
 #
+    # Para esteblecer nombre de dominio en "search"
+#awx_container_search_domains=example.com
+#
     # Para utilizar nuestros propios certificados
-ca_trust_dir=/etc/pki/ca-trust/source/anchors
+#ca_trust_dir=/etc/pki/ca-trust/source/anchors
+#
+    # Para utilizar logos en ../../awx-logos
+#awx_official=true
 #
 EOF
 
 ansible-playbook -i inventory install.yml
 ```
+
+----------------------------------------------------------------------
 
 ## Uso básico de la API
 
@@ -108,11 +113,12 @@ curl -k -H "Authorization: Bearer ${TOKEN}" \
 -X POST  -d '{}' http://${TOWERHOST}/api/v2/job_templates/5/launch/ | jq
 ```
 
+-----------------------------------------------------------------------
 
 ## Creación de contenedor Docker mediante ansible
 
 ```bash
-PROJECT="proyecto_awx"
+PROJECT="local_awx"
 
 PROJECT_DIR="${HOME}/$PROJECT"
 
@@ -150,14 +156,14 @@ cat << EOF > $PROJECT_DIR/ansible_docker/playbook.yml
   tasks:
     - name: Build Docker image from Dockerfile
       docker_image:
-        name: dns_awx
+        name: awx_dns
         path: docker
         state: build
 
     - name: Running the container
       docker_container:
-        name: dns_awx_juanpe
-        image: dns_awx:latest
+        name: awx_dns_master
+        image: awx_dns:latest
         state: started
 ...
 EOF
@@ -181,6 +187,8 @@ docker exec -it installer_task_1 mkdir -p /var/lib/awx/projects/proyecto1
 docker cp $PROJECT_DIR/ansible_docker/playbook.yml installer_task_1:/var/lib/awx/projects/proyecto1/
 docker cp $PROJECT_DIR/ansible_docker/docker installer_task_1:/var/lib/awx/projects/proyecto1/
 ```
+
+----------------------------------------------------------------------
 
 ## Prueba de ejecución plantillas para el dns ya montado con el docker-compose ya montado también
 
@@ -335,6 +343,8 @@ EOF
 ```bash
 docker-compose -f docker-compose_old.yml up -d
 ```
+
+----------------------------------------------------------------------
 
 ## Uso tower-cli
 
