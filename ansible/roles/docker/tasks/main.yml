@@ -13,7 +13,7 @@
     restart_policy: always
     state: started
     networks:
-      - name: local_awx_default
+      - name: bridge
         ipv4_address: "{{ ip }}"
     ports:
       - "53:53/udp"
