@@ -1,0 +1,23 @@
+- name: Login into registry
+  docker_login:
+    registry: "{{ docker_registry_url }}"
+    username: "{{ user }}"
+    password: "{{ pass }}"
+    reauthorize: yes
+
+- name: Create container DNS master
+  docker_container:
+    name: dns-master
+    image: "{{ docker_registry_url }}/{{ docker_image_name }}"
+    hostname: "{{ name_docker }}"
+    restart_policy: always
+    state: started
+    networks:
+      - name: local_awx_default
+        ipv4_address: "{{ ip }}"
+    ports:
+      - "53:53/udp"
+      - "53:53"
+      - "2022:22"
+    volumes:
+      - "{{ ssh_pub_key }}:/root/.ssh/authorysez_keys"
