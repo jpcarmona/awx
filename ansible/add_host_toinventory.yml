@@ -1,0 +1,5 @@
+---
+- hosts: host_1
+  tasks:
+    - name: GET a list
+      shell: tower-cli host create --name="{{ name_docker }}" --description="example host" --inventory="inventory_1" --variables="ansible_host: {{ ip }}"
