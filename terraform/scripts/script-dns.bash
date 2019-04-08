@@ -3,15 +3,15 @@
 ### Activamos "loggeo"
 #sudo set -x
 ## Actualizamos
-sudo apt update
-sudo apt upgrade -y
+sudo apt-get update
+sudo apt-get upgrade -y
 ##Añadimos repositorio Docker
-sudo apt install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo apt-get install apt-transport-https ca-certificates curl gnupg-agent software-properties-common -y
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository 'deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable' -y
-sudo apt update
+sudo apt-get update
 ## Instalamos Docker
-sudo apt install docker-ce python3 python -y
+sudo apt-get install -y git docker-ce ansible docker-compose
 #sudo systemctl stop systemd-resolved
 #sudo systemctl disable systemd-resolved
 #sudo systemctl mask systemd-resolved

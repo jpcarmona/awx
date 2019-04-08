@@ -11,19 +11,22 @@ resource "aws_instance" "awx" {
     volume_size = 20
   }
 
-  #  provisioner "file" {
-  #    source      = "scripts/script-awx.bash"
-  #    destination = "/tmp/script-awx.sh"
-  #  }
-  #
-  #  provisioner "remote-exec" {
-  #    inline = [
-  #      "chmod +x /tmp/script-awx.sh",
-  #      "/tmp/script-awx.sh",
-  #    ]
-  #  }
+  provisioner "file" {
+    source      = "scripts/script-awx.bash"
+    destination = "/tmp/script-awx.sh"
+  }
+
   provisioner "remote-exec" {
-    script = "scripts/script-awx.bash"
+    inline = [
+      "chmod +x /tmp/script-awx.sh",
+      "bash /tmp/script-awx.sh init",
+    ]
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "bash /tmp/script-awx.sh awx",
+    ]
   }
 
   connection {
@@ -46,23 +49,30 @@ resource "aws_instance" "awx-dns-server" {
   subnet_id              = "${aws_subnet.pri1.id}"
   private_ip             = "${var.private-ip-dns}"
 
-  #user_data = "${data.template_file.userdata.rendered}"
-
   provisioner "file" {
-    source      = "scripts/script-dns.bash"
-    destination = "/tmp/script-dns.sh"
+    source      = "scripts/script-awx.bash"
+    destination = "/tmp/script-awx.sh"
   }
+
   provisioner "remote-exec" {
     inline = [
-      "sudo chmod +x /tmp/script-dns.sh",
-      "bash /tmp/script-dns.sh",
+      "sudo chmod +x /tmp/script-awx.sh",
+      "bash /tmp/script-awx.sh init",
     ]
   }
+
+  provisioner "remote-exec" {
+    inline = [
+      "bash /tmp/script-awx.sh dns",
+    ]
+  }
+
   connection {
     type        = "ssh"
     user        = "ubuntu"
     private_key = "${file("${var.file-ssh-key}")}"
   }
+
   tags {
     Name = "jp_awx-dns-server"
   }
