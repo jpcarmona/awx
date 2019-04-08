@@ -449,6 +449,11 @@ tower-cli inventory list
 tower-cli inventory create --name="inventory_1" --organization="Default" --description="example inventory"
 ```
 
+* Creación inventario con ficheros:
+```bash
+tower-cli inventory create --name="inventory_1" --organization="Default" --description="example inventory" --variables=@inventory_vars.yml
+```
+
 * Eliminar inventario:
 ```bash
 tower-cli inventory delete -n inventory_1
@@ -462,6 +467,11 @@ tower-cli host create --name="host_1" --description="example host" --inventory="
 * Modificar Servidor de un inventario:
 ```bash
 tower-cli host modify --name="host_1" --description="example host" --inventory="inventory_1" --variables="ansible_host: 127.0.0.1"
+```
+
+* Añadir fuentes a inventario de un proyecto existente:
+```bash
+tower-cli inventory_source create --name="source_1" --description="example source" --inventory="inventory_dns" --source="scm" --source-path="inventories/servers" --source-project="proyecto_fuentes"
 ```
 
 ### Proyectos con tower-cli
