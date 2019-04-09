@@ -15,6 +15,7 @@
     networks:
       - name: bridge
         ipv4_address: "{{ ip }}"
+    purge_networks: yes
     ports:
       - "53:53/udp"
       - "53:53"
