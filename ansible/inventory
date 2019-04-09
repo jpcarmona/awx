@@ -1,0 +1,24 @@
+---
+all:
+  hosts:
+    localserver:
+      ansible_connection: local
+    dns-poc3:
+      ansible_host: 10.0.0.1
+      ansible_user: root
+  children:
+    dnsservers:
+      children:
+        dnsmasterserver:
+          hosts:
+            #psd-02
+            dns-poc1:
+              ansible_host: 10.0.0.5
+              ansible_user: root
+        dnsslaveserver:
+          hosts:
+            #psd-01
+            dns-poc2:
+              ansible_host: 10.0.0.6
+              ansible_user: root
+              ansible_port: 22122
