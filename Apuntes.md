@@ -421,12 +421,12 @@ ssh_key_data: |
 
 * Creación credenciales(tipo github,con clave privada):
 ```bash
-tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="username: jpcarmona
-ssh_key_data: |
-  $(cat ~/.ssh/id_rsa | tr '\n' ' ')"
+awx_inputs="ssh_key_data: |
+$(awk '{printf " %s\n", $0}' < ~/.ssh/id_rsa)"
+tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="$awx_inputs"  --force-on-exists=false
 ```
 
-* Creación credenciales(tipo github,con constraseña):
+* Creación credenciales(tipo github,con contraseña):
 ```bash
 tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="username: jpcarmona
 password: <contraseña>"
