@@ -414,7 +414,7 @@ tower-cli credential list
 
 * Creación credenciales(tipo maquina-ssh,con clave privada):
 ```bash
-tower-cli credential create --credential-type="Machine" --name="prueba2" --user="admin" --inputs="username: jpcarmona
+tower-cli credential create --credential-type="Machine" --name="ws-jpcarmona" --user="admin" --inputs="username: jpcarmona
 ssh_key_data: |
   $(cat ~/.ssh/id_rsa | tr '\n' ' ')"
 ```
@@ -423,12 +423,12 @@ ssh_key_data: |
 ```bash
 awx_inputs="ssh_key_data: |
 $(awk '{printf " %s\n", $0}' < ~/.ssh/id_rsa)"
-tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="$awx_inputs"  --force-on-exists
+tower-cli credential create --credential-type="Source Control" --name="github_jpcarmona" --user="admin" --inputs="$awx_inputs"  --force-on-exists
 ```
 
 * Creación credenciales(tipo github,con contraseña):
 ```bash
-tower-cli credential create --credential-type="Source Control" --name="credential_2" --user="admin" --inputs="username: jpcarmona
+tower-cli credential create --credential-type="Source Control" --name="github" --user="admin" --inputs="username: jpcarmona
 password: <contraseña>"
 ```
 
@@ -456,10 +456,10 @@ tower-cli inventory list
 
 * Creación inventario:
 ```bash
-tower-cli inventory create --name="inventory_1" --organization="Default" --description="example inventory"
+tower-cli inventory create --name="awx" --organization="Default" --description="awx inventory"
 ```
 
-* Creación inventario con ficheros:
+* Creación inventario con variables mediante ficheros:
 ```bash
 tower-cli inventory create --name="inventory_1" --organization="Default" --description="example inventory" --variables=@inventory_vars.yml
 ```
@@ -479,9 +479,9 @@ tower-cli host create --name="host_1" --description="example host" --inventory="
 tower-cli host modify --name="host_1" --description="example host" --inventory="inventory_1" --variables="ansible_host: 127.0.0.1"
 ```
 
-* Añadir fuentes a inventario de un proyecto existente:
+* Añadir fuentes a inventario de un "proyecto existente":
 ```bash
-tower-cli inventory_source create --name="source_1" --description="example source" --inventory="inventory_dns" --source="scm" --source-path="inventories/servers" --source-project="proyecto_fuentes"
+tower-cli inventory_source create --name="awx" --description="awx source" --inventory="awx" --source="scm" --source-path="ansible/inventory.yml" --source-project="awx" --update-on-project-update=true --force-on-exists
 ```
 
 * Actualizar inventario fuente(o utilizar opciones "--update-on-launch=true"):
@@ -520,7 +520,7 @@ tower-cli project create --name="proyect_1" --organization="Default" --scm-type=
 
 * Creación proyectos(git):
 ```bash
-tower-cli project create --name="project_3" --organization="Default" --scm-type="git" --scm-url="https://github.com/Emergya/sistemas-ansible-roles.git" --scm-branch="master" --scm-credential="credential_2"
+tower-cli project create --name="awx" --organization="Default" --scm-type="git" --scm-url="https://github.com/jpcarmona/awx.git" --scm-branch="master" --scm-credential="guthub_jpcarmona" --force-on-exists --scm-update-on-launch=true
 ```
 
 * Actualizar proyectos:
