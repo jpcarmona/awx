@@ -6,6 +6,9 @@ all:
     dns-poc3:
       ansible_host: 10.0.0.1
       ansible_user: root
+    dns-server:
+      ansible_host: 172.22.0.1
+      ansible_user: jpcarmona
   children:
     dnsservers:
       children:
