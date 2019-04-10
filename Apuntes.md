@@ -387,18 +387,20 @@ tower-cli config verify_ssl false
 * Establecemos variables para especificar donde vamos a configurar:
 ```bash
 #COnfiguración global
-config_tower-cli=/etc/tower/tower_cli.cfg
+config_tower_cli=/etc/tower/tower_cli.cfg
 #COnfiguración usuario
-config_tower-cli=~/.tower_cli.cfg
+config_tower_cli=~/.tower_cli.cfg
 ```
 
 * Creamos fichero de configuración:
 ```bash
-cat << EOF > $config_tower-cli
+cat << EOF > $config_tower_cli
+[general]
 host http://localhost
 username admin
 password password
 verify_ssl = false
+
 EOF
 ```
 
