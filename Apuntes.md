@@ -523,6 +523,11 @@ tower-cli project create --name="proyect_1" --organization="Default" --scm-type=
 tower-cli project create --name="project_3" --organization="Default" --scm-type="git" --scm-url="https://github.com/Emergya/sistemas-ansible-roles.git" --scm-branch="master" --scm-credential="credential_2"
 ```
 
+* Actualizar proyectos:
+```bash
+tower-cli project update awx
+```
+
 * Eliminar proyectos:
 ```bash
 tower-cli project delete -n prueba
