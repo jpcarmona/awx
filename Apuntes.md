@@ -484,6 +484,11 @@ tower-cli host modify --name="host_1" --description="example host" --inventory="
 tower-cli inventory_source create --name="source_1" --description="example source" --inventory="inventory_dns" --source="scm" --source-path="inventories/servers" --source-project="proyecto_fuentes"
 ```
 
+* Actualizar inventario fuente(o utilizar opciones "--update-on-launch=true"):
+```bash
+tower-cli inventory_source update awx
+```
+
 ### Proyectos con tower-cli
 
 * Listado de proyectos:
