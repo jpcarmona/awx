@@ -17,6 +17,7 @@ __root="$(cd "$(dirname "${__dir}")" && pwd)"
 
 ### BEST PRACTICES }}}
 
+
 ###{{{ VARS BEGIN
 
 ## For all connections:
@@ -31,7 +32,7 @@ PROJECT_URL="https://github.com/jpcarmona/awx.git"
 ##For credentials:
 SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
 ##Vars for launch job
-VARS_TO_LAUNCH=$(echo "message=$1")
+VARS_TO_LAUNCH=$(echo "message=$2")
 
 ##Set survey file
 SURVEY_TEXT='
@@ -55,6 +56,7 @@ SURVEY_TEXT='
 }'
 
 ### VARS END }}}
+
 
 ###{{{ FUNCTIONS BEGIN
 
@@ -295,7 +297,7 @@ then
 elif [ "$1" == "launch" ]
 then
 
-  etk-awx-cli-launch-job $2
+  etk-awx-cli-launch-job
 
 elif [ "$1" == "delete" ]
 then
