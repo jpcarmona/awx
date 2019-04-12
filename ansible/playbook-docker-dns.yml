@@ -1,5 +1,0 @@
----
-- hosts: localserver
-  become: true
-  roles:
-    - docker

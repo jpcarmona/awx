@@ -1,0 +1,5 @@
+---
+- hosts: dns-server
+  become: true
+  roles:
+    - bind
