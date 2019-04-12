@@ -2,16 +2,16 @@
 
 ###{{{ BEST PRACTICES
 
-set -o errexit
-set -o nounset
-set -o pipefail
-set -o xtrace
+#set -o errexit
+#set -o nounset
+#set -o pipefail
+#set -o xtrace
 
 
-__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
-__base="$(basename ${__file} .sh)"
-__root="$(cd "$(dirname "${__dir}")" && pwd)"
+#__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
+#__base="$(basename ${__file} .sh)"
+#__root="$(cd "$(dirname "${__dir}")" && pwd)"
 
 #arg1="${1:-}"
 
@@ -29,10 +29,12 @@ PROJECT_NAME="juanpe"
 PROJECT_ORG="Default"
 ## For projects:
 PROJECT_URL="https://github.com/jpcarmona/awx.git"
+## Playbook:
+PLAYBOOK="ansible/playbook.yml"
 ##For credentials:
 SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
 ##Vars for launch job
-VARS_TO_LAUNCH=$(echo "message=$2")
+VARS_TO_LAUNCH=$(echo "message=${2:-}")
 
 ##Set survey file
 SURVEY_TEXT='
@@ -163,7 +165,7 @@ function etk-awx-cli-create-inventory_source() {
     --inventory="inventory_${PROJECT_ORG}-${PROJECT_NAME}" \
     --source="scm" \
     --source-project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --source-path="ansible/inventory.yml" \
+    --source-path="${PLAYBOOK}" \
     --update-on-project-update=true \
     --force-on-exists
 
@@ -273,12 +275,33 @@ function etk-awx-cli-delete-env() {
 }
 
 
+function etk-awx-cli-check-job_template() {
+
+  tower-cli job_template get \
+    --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
+    2>/dev/null
+
+}
+
+
 function etk-awx-cli-launch-job() {
 
-  tower-cli job launch \
-    --job-template=job-template_${PROJECT_ORG}-${PROJECT_NAME} \
-    --extra-vars="${VARS_TO_LAUNCH}" \
-    --monitor
+  etk-awx-cli-check-job_template
+
+  if [ "$?" != "0" ]
+  then
+
+    echo "The job template doesn´t exist"
+    exit 1
+
+  else
+
+    tower-cli job launch \
+      --job-template=job-template_${PROJECT_ORG}-${PROJECT_NAME} \
+      --extra-vars="${VARS_TO_LAUNCH}" \
+      --monitor
+
+  fi
 
 }
 
