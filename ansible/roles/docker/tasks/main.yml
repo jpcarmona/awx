@@ -13,7 +13,7 @@
     restart_policy: always
     state: started
     networks:
-      - name: bridge
+      - name: "{{ network }}"
         ipv4_address: "{{ ip }}"
     purge_networks: yes
     ports:
