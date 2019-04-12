@@ -1,5 +1,5 @@
 ---
-- hosts: server-host
+- hosts: dns-server
   become: true
   roles:
-    - docker
+    - bind
