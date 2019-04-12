@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-###{{{ BEST PRACTICES
+######## {{{ BEST PRACTICES BEGIN
 
 #set -o errexit
 #set -o nounset
@@ -15,10 +15,10 @@
 
 #arg1="${1:-}"
 
-### BEST PRACTICES }}}
+######## BEST PRACTICES END }}}
 
 
-###{{{ VARS BEGIN
+######## {{{ VARS BEGIN
 
 ## For all connections:
 AWXUSER="admin"
@@ -30,7 +30,9 @@ PROJECT_ORG="Default"
 ## For projects:
 PROJECT_URL="https://github.com/jpcarmona/awx.git"
 ## Playbook:
-PLAYBOOK="ansible/playbook.yml"
+PLAYBOOK_FILE="ansible/playbook.yml"
+## Inventory:
+INVENTORY_FILE="ansible/inventory.yml"
 ##For credentials:
 SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
 ##Vars for launch job
@@ -57,10 +59,10 @@ SURVEY_TEXT='
   ]
 }'
 
-### VARS END }}}
+######## VARS END }}}
 
 
-###{{{ FUNCTIONS BEGIN
+######## {{{ FUNCTIONS BEGIN
 
 function etk-awx-cli-config() {
 
@@ -71,7 +73,7 @@ tower-cli config verify_ssl false
 
 }
 
-##{{ CREATES
+#### {{ CREATES BEGIN
 
 function etk-awx-cli-create-credential-git() {
 
@@ -117,7 +119,7 @@ function etk-awx-cli-create-project() {
 
 }
 
-## {{ CHECK PROJECT IS CREATED
+## {{ CHECK PROJECT IS CREATED BEGIN
 
 function etk-awx-cli-check-project() {
 
@@ -143,7 +145,7 @@ function etk-awx-cli-wait-for-project() {
 
 }
 
-## CHECK PROJECT IS CREATED }}
+## CHECK PROJECT IS CREATED END }}
 
 
 function etk-awx-cli-create-inventory() {
@@ -165,7 +167,7 @@ function etk-awx-cli-create-inventory_source() {
     --inventory="inventory_${PROJECT_ORG}-${PROJECT_NAME}" \
     --source="scm" \
     --source-project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --source-path="${PLAYBOOK}" \
+    --source-path="${INVENTORY_FILE}" \
     --update-on-project-update=true \
     --force-on-exists
 
@@ -180,7 +182,7 @@ function etk-awx-cli-create-job_template() {
     --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
     --inventory="inventory_${PROJECT_ORG}-${PROJECT_NAME}" \
     --project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --playbook="ansible/playbook.yml" \
+    --playbook="${PLAYBOOK_FILE}" \
     --credential="credential-ssh_${PROJECT_ORG}-${PROJECT_NAME}" \
     --ask-variables-on-launch=true \
     --force-on-exists \
@@ -201,11 +203,51 @@ function etk-awx-cli-create-job_template-survey() {
 
 }
 
-## CREATES }}
+#### CREATES END }}
 
 
+#### {{ UPDATE BEGIN
 
-##{{ DELETES
+function etk-awx-cli-update-inventoy_source() {
+
+  tower-cli inventory_source update inventory-source_${PROJECT_ORG}-${PROJECT_NAME}
+
+}
+
+
+function etk-awx-cli-update-project() {
+
+  tower-cli project update project-git_${PROJECT_ORG}-${PROJECT_NAME}
+
+}
+
+#### UPDATE END }}
+
+
+#### {{ LAUNCH BEGIN
+
+function etk-awx-cli-check-job_template() {
+
+  tower-cli job_template get \
+    --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
+    2>/dev/null
+
+}
+
+
+function etk-awx-cli-launch-job() {
+
+    tower-cli job launch \
+      --job-template=job-template_${PROJECT_ORG}-${PROJECT_NAME} \
+      --extra-vars="${VARS_TO_LAUNCH}" \
+      --monitor
+
+}
+
+#### LAUNCH END }}
+
+
+#### {{ DELETES BEGIN
 
 function etk-awx-cli-delete-credential-git() {
 
@@ -246,10 +288,13 @@ function etk-awx-cli-delete-job_template() {
 
 }
 
-## DELETES }}
+#### DELETES END }}
 
 
-function etk-awx-cli-create-env() {
+
+#### {{{ MAIN FUNCTIONS BEGIN
+
+function etk-awx-cli-create-main() {
 
   etk-awx-cli-config
   etk-awx-cli-create-credential-git
@@ -264,27 +309,15 @@ function etk-awx-cli-create-env() {
 }
 
 
-function etk-awx-cli-delete-env() {
+function etk-awx-cli-update-main() {
 
-  etk-awx-cli-delete-job_template
-  etk-awx-cli-delete-inventory
-  etk-awx-cli-delete-project
-  etk-awx-cli-delete-credential-ssh
-  etk-awx-cli-delete-credential-git
+  etk-awx-cli-update-inventoy_source
+  etk-awx-cli-update-project  
 
 }
 
 
-function etk-awx-cli-check-job_template() {
-
-  tower-cli job_template get \
-    --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
-    2>/dev/null
-
-}
-
-
-function etk-awx-cli-launch-job() {
+function etk-awx-cli-launch-main() {
 
   etk-awx-cli-check-job_template
 
@@ -296,17 +329,27 @@ function etk-awx-cli-launch-job() {
 
   else
 
-    tower-cli job launch \
-      --job-template=job-template_${PROJECT_ORG}-${PROJECT_NAME} \
-      --extra-vars="${VARS_TO_LAUNCH}" \
-      --monitor
+    etk-awx-cli-launch-job
 
   fi
 
 }
 
 
-### FUNCTIONS END }}}
+function etk-awx-cli-delete-main() {
+
+  etk-awx-cli-delete-job_template
+  etk-awx-cli-delete-inventory
+  etk-awx-cli-delete-project
+  etk-awx-cli-delete-credential-ssh
+  etk-awx-cli-delete-credential-git
+
+}
+
+#### MAIN UNCTIONS END }}}
+
+
+######## FUNCTIONS END }}}
 
 
 
@@ -315,17 +358,22 @@ function etk-awx-cli-launch-job() {
 if [ "$1" == "create" ]
 then
 
-  etk-awx-cli-create-env
+  etk-awx-cli-create-main
+
+elif [ "$1" == "update" ]
+then
+
+  etk-awx-cli-update-main
 
 elif [ "$1" == "launch" ]
 then
 
-  etk-awx-cli-launch-job
+  etk-awx-cli-launch-main
 
 elif [ "$1" == "delete" ]
 then
 
-  etk-awx-cli-delete-env
+  etk-awx-cli-delete-main
 
 fi
 
