@@ -5,7 +5,7 @@
 #set -o errexit
 #set -o nounset
 #set -o pipefail
-#set -o xtrace
+set -o xtrace
 
 
 #__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -210,14 +210,18 @@ function etk-awx-cli-create-job_template-survey() {
 
 function etk-awx-cli-update-inventoy_source() {
 
-  tower-cli inventory_source update inventory-source_${PROJECT_ORG}-${PROJECT_NAME}
+  tower-cli inventory_source update \
+  --monitor \
+  inventory-source_${PROJECT_ORG}-${PROJECT_NAME}
 
 }
 
 
 function etk-awx-cli-update-project() {
 
-  tower-cli project update project-git_${PROJECT_ORG}-${PROJECT_NAME}
+  tower-cli project update \
+  --name="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
+  --monitor
 
 }
 
