@@ -21,4 +21,4 @@
       - "53:53"
       - "2022:22"
     volumes:
-      - "{{ ssh_pub_key }}:/root/.ssh/authorized_keys"
+      - "{{ ssh_pub_key }}:/home/developer/.ssh/authorized_keys"
