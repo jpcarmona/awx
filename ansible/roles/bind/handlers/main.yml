@@ -2,6 +2,6 @@
 ---
 
 - name: reload bind
-  service:
+  supervisorctl:
     name: "{{ bind_service }}"
     state: reloaded

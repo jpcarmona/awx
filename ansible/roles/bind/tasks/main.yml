@@ -102,7 +102,7 @@
   when: bind_zone_master_server_ip not in ansible_all_ipv4_addresses
 
 - name: Start BIND service
-  service:
+  supervisorctl:
     name: "{{ bind_service }}"
     state: started
     enabled: true
