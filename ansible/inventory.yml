@@ -9,6 +9,6 @@ all:
     dns-server:
       ansible_host: 172.22.0.55
       ansible_user: developer
-    server-host:
+    host-server:
       ansible_host: 172.22.0.1
       ansible_user: jpcarmona
