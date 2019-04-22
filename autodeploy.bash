@@ -71,7 +71,10 @@ SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
 #}'
 
 ## Load vars from file
-. $2
+if [ $2 ]
+then
+  . $2
+fi
 
 ######## VARS END }}}
 
@@ -204,7 +207,7 @@ function etk-awx-cli-create-job_template() {
 }
 
 
-function etk-awx-cli-create-job_template-survey() {
+function etk-awx-cli-modify-job_template-survey() {
 
   echo ${SURVEY_TEXT:-} > /tmp/survey_${PROJECT_ORG}-${PROJECT_NAME}.json
 
@@ -238,15 +241,6 @@ function etk-awx-cli-update-inventoy_source() {
 
 }
 
-function etk-awx-cli-update-template() {
-
-  tower-cli job_template modify \
-    --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --playbook="${PLAYBOOK_FILE}"
-
-}
-
 #### UPDATE END }}
 
 
@@ -257,6 +251,16 @@ function etk-awx-cli-check-job_template() {
   tower-cli job_template get \
     --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
     2>/dev/null
+
+}
+
+
+function etk-awx-cli-modify-template_playbook() {
+
+  tower-cli job_template modify \
+    --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
+    --project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
+    --playbook="${PLAYBOOK_FILE}"
 
 }
 
@@ -329,9 +333,21 @@ function etk-awx-cli-create-main() {
   etk-awx-cli-create-project
   etk-awx-cli-create-inventory
   etk-awx-cli-create-inventory_source
-  etk-awx-cli-wait-for-project  
-  etk-awx-cli-create-job_template
-  etk-awx-cli-create-job_template-survey
+  etk-awx-cli-wait-for-project
+
+  if [ $PLAYBOOK_FILE ]
+  then
+    etk-awx-cli-create-job_template
+
+    if [ $SURVEY_TEXT ]
+    then
+      etk-awx-cli-modify-job_template-survey
+    fi
+
+  else
+    echo "Variable PLAYBOOK_FILE not found"
+    echo "Template not created"
+  fi
 
 }
 
@@ -340,7 +356,6 @@ function etk-awx-cli-update-main() {
 
   etk-awx-cli-update-project
   etk-awx-cli-update-inventoy_source
-  etk-awx-cli-update-template
 
 }
 
@@ -356,6 +371,11 @@ function etk-awx-cli-launch-main() {
     exit 1
 
   else
+
+    if [ $2 -a $PLAYBOOK_FILE ]
+    then
+      etk-awx-cli-modify-template_playbook
+    fi
 
     etk-awx-cli-launch-job
 
@@ -383,6 +403,9 @@ function etk-awx-cli-delete-main() {
 
 ###{{{ MAIN
 
+## Comprobación de entornos virtuales de python3
+source ~/entornos/entorno_${PROJECT_ORG}-${PROJECT_NAME}/bin/activate
+
 if [ "$1" == "create" ]
 then
 
@@ -404,5 +427,7 @@ then
   etk-awx-cli-delete-main
 
 fi
+
+deactivate
 
 ### MAIN }}}
