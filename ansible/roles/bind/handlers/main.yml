@@ -4,4 +4,4 @@
 - name: reload bind
   supervisorctl:
     name: "{{ bind_service }}"
-    state: reloaded
+    state: restarted
