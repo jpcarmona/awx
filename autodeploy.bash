@@ -7,7 +7,6 @@
 #set -o pipefail
 set -o xtrace
 
-
 #__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
 #__base="$(basename ${__file} .sh)"
@@ -30,34 +29,49 @@ PROJECT_ORG="Default"
 ## For projects:
 PROJECT_URL="https://github.com/jpcarmona/awx.git"
 ## Playbook:
-PLAYBOOK_FILE="ansible/playbook.yml"
+#PLAYBOOK_FILE="ansible/playbook-docker.yml"
 ## Inventory:
 INVENTORY_FILE="ansible/inventory.yml"
 ##For credentials:
 SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
+
+#read -sp "Contraseña:\n" PASSWORD
+
 ##Vars for launch job
-VARS_TO_LAUNCH=$(echo "message=${2:-}")
+#VARS_TO_LAUNCH=$(echo "message=${2:-}")
+#VARS_TO_LAUNCH="
+#{ "docker_registry_url": "docker-registry.emergya.com:443/emergya",
+#"user":"jpcarmona", "pass": "$PASSWORD",
+#"docker_image_name": "emergya-docker-bind9:latest",
+#"name_docker": "dns-master", "ip": "172.22.0.55",
+#"ssh_pub_key": "${HOME}/.ssh/${PROJECT_NAME}.pub",
+#"network": "local_awx_default"
+#}"
+#VARS_TO_LAUNCH=""
 
 ##Set survey file
-SURVEY_TEXT='
-{
-  "name": "",
-  "description": "",
-  "spec": [
-    {
-      "question_name": "Message",
-      "question_description": "Write a message",
-      "required": true,
-      "type": "text",
-      "variable": "message",
-      "min": 0,
-      "max": 1024,
-      "default": "Hello World!",
-      "choices": "",
-      "new_question": true
-    }
-  ]
-}'
+#SURVEY_TEXT='
+#{
+#  "name": "",
+#  "description": "",
+#  "spec": [
+#    {
+#      "question_name": "Message",
+#      "question_description": "Write a message",
+#      "required": true,
+#      "type": "text",
+#      "variable": "message",
+#      "min": 0,
+#      "max": 1024,
+#      "default": "Hello World!",
+#      "choices": "",
+#      "new_question": true
+#    }
+#  ]
+#}'
+
+## Load vars from file
+. $2
 
 ######## VARS END }}}
 
@@ -184,15 +198,15 @@ function etk-awx-cli-create-job_template() {
     --project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
     --playbook="${PLAYBOOK_FILE}" \
     --credential="credential-ssh_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --ask-variables-on-launch=true \
-    --force-on-exists \
+    --ask-variables-on-launch=false \
+    --force-on-exists
 
 }
 
 
 function etk-awx-cli-create-job_template-survey() {
 
-  echo ${SURVEY_TEXT} > /tmp/survey_${PROJECT_ORG}-${PROJECT_NAME}.json
+  echo ${SURVEY_TEXT:-} > /tmp/survey_${PROJECT_ORG}-${PROJECT_NAME}.json
 
   tower-cli job_template modify \
     --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
@@ -208,6 +222,14 @@ function etk-awx-cli-create-job_template-survey() {
 
 #### {{ UPDATE BEGIN
 
+function etk-awx-cli-update-project() {
+
+  tower-cli project update \
+  --name="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
+  --monitor
+
+}
+
 function etk-awx-cli-update-inventoy_source() {
 
   tower-cli inventory_source update \
@@ -216,12 +238,12 @@ function etk-awx-cli-update-inventoy_source() {
 
 }
 
+function etk-awx-cli-update-template() {
 
-function etk-awx-cli-update-project() {
-
-  tower-cli project update \
-  --name="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
-  --monitor
+  tower-cli job_template modify \
+    --name="job-template_${PROJECT_ORG}-${PROJECT_NAME}" \
+    --project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
+    --playbook="${PLAYBOOK_FILE}"
 
 }
 
@@ -243,7 +265,8 @@ function etk-awx-cli-launch-job() {
 
     tower-cli job launch \
       --job-template=job-template_${PROJECT_ORG}-${PROJECT_NAME} \
-      --extra-vars="${VARS_TO_LAUNCH}" \
+      --extra-vars="${VARS_TO_LAUNCH:-}" \
+      --verbosity=2 \
       --monitor
 
 }
@@ -315,8 +338,9 @@ function etk-awx-cli-create-main() {
 
 function etk-awx-cli-update-main() {
 
+  etk-awx-cli-update-project
   etk-awx-cli-update-inventoy_source
-  etk-awx-cli-update-project  
+  etk-awx-cli-update-template
 
 }
 
