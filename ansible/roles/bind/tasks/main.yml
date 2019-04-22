@@ -105,5 +105,4 @@
   supervisorctl:
     name: "{{ bind_service }}"
     state: started
-    enabled: true
   tags: bind
