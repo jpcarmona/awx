@@ -31,7 +31,7 @@ resource "aws_security_group" "sgawx" {
   }
 
   tags {
-    Name = "sec-grp-dns"
+    Name = "sec-grp-awx"
   }
 }
 
@@ -61,6 +61,6 @@ resource "aws_security_group" "sgdns" {
   }
 
   tags {
-    Name = "sec-grp-awx"
+    Name = "sec-grp-dns"
   }
 }
