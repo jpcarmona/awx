@@ -158,6 +158,7 @@ function etk-awx-cli-wait-for-project() {
   do
 
     STATUS=$(etk-awx-cli-check-project)
+    sleep 2
 
   done
 
@@ -327,13 +328,13 @@ function etk-awx-cli-delete-job_template() {
 
 function etk-awx-cli-create-main() {
 
-  etk-awx-cli-config
   etk-awx-cli-create-credential-git
   etk-awx-cli-create-credential-ssh
   etk-awx-cli-create-project
+  etk-awx-cli-wait-for-project
   etk-awx-cli-create-inventory
   etk-awx-cli-create-inventory_source
-  etk-awx-cli-wait-for-project
+  etk-awx-cli-update-inventoy_source
 
   if [ $PLAYBOOK_FILE ]
   then
@@ -405,6 +406,9 @@ function etk-awx-cli-delete-main() {
 
 ## Comprobación de entornos virtuales de python3
 source ~/entornos/entorno_${PROJECT_ORG}-${PROJECT_NAME}/bin/activate
+
+## Config tower-cli
+etk-awx-cli-config
 
 if [ "$1" == "create" ]
 then
