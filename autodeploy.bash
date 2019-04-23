@@ -5,7 +5,7 @@
 #set -o errexit
 #set -o nounset
 #set -o pipefail
-set -o xtrace
+#set -o xtrace
 
 #__dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 #__file="${__dir}/$(basename "${BASH_SOURCE[0]}")"
@@ -24,16 +24,17 @@ AWXUSER="admin"
 AWXPASS="password"
 AWXHOST="http://localhost"
 ## For naming resources:
-PROJECT_NAME="juanpe"
-PROJECT_ORG="Default"
+#PROJECT_NAME="juanpe2"
+#PROJECT_ORG="Default"
 ## For projects:
-PROJECT_URL="https://github.com/jpcarmona/awx.git"
+#PROJECT_URL="https://github.com/Emergya/sistemas-ansible-roles.git"
+#PROJECT_BRANCH="jpcarmona"
 ## Playbook:
 #PLAYBOOK_FILE="ansible/playbook-docker.yml"
 ## Inventory:
-INVENTORY_FILE="ansible/inventory.yml"
+#INVENTORY_FILE="inventories/emergya-dns-servers.yml"
 ##For credentials:
-SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
+#SSH_KEY_FILE="${HOME}/.ssh/${PROJECT_NAME}"
 
 #read -sp "Contraseña:\n" PASSWORD
 
@@ -130,9 +131,9 @@ function etk-awx-cli-create-project() {
     --name="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
     --scm-type="git" \
     --scm-url="$PROJECT_URL" \
-    --scm-branch="master" \
+    --scm-branch="$PROJECT_BRANCH" \
     --scm-credential="credential-git_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --scm-update-on-launch=true --force-on-exists
+    --force-on-exists
 
 }
 
@@ -185,7 +186,6 @@ function etk-awx-cli-create-inventory_source() {
     --source="scm" \
     --source-project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
     --source-path="${INVENTORY_FILE}" \
-    --update-on-project-update=true \
     --force-on-exists
 
 }
@@ -201,7 +201,7 @@ function etk-awx-cli-create-job_template() {
     --project="project-git_${PROJECT_ORG}-${PROJECT_NAME}" \
     --playbook="${PLAYBOOK_FILE}" \
     --credential="credential-ssh_${PROJECT_ORG}-${PROJECT_NAME}" \
-    --ask-variables-on-launch=false \
+    --ask-variables-on-launch=true \
     --force-on-exists
 
 }
@@ -345,8 +345,8 @@ function etk-awx-cli-create-main() {
     fi
 
   else
-    echo "Variable PLAYBOOK_FILE not found"
-    echo "Template not created"
+    echo "ERROR - Variable PLAYBOOK_FILE not found"
+    echo "ERROR - Template not created"
   fi
 
 }
