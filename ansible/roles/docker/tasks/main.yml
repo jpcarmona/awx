@@ -16,9 +16,6 @@
       - name: "{{ network }}"
         ipv4_address: "{{ ip }}"
     purge_networks: yes
-    ports:
-      - "53:53/udp"
-      - "53:53"
-      - "2022:22"
+    ports: "{{ ports }}"
     volumes:
       - "{{ ssh_pub_key }}:/home/developer/.ssh/authorized_keys"
