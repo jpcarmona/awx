@@ -7,7 +7,7 @@
 
 - name: Create container DNS master
   docker_container:
-    name: dns-master
+    name: "{{ name_container }}"
     image: "{{ docker_registry_url }}/{{ docker_image_name }}"
     hostname: "{{ name_docker }}"
     restart_policy: always
